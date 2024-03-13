@@ -2,17 +2,46 @@
 from asyncio import run_coroutine_threadsafe
 
 from aiohttp import ClientSession
-import my_pypi_package
+from abc import ABC, abstractmethod
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import config_entry_oauth2_flow
+
+from aiohttp import ClientSession, ClientResponse
 
 # TODO the following two API examples are based on our suggested best practices
 # for libraries using OAuth2 with requests or aiohttp. Delete the one you won't use.
 # For more info see the docs at https://developers.home-assistant.io/docs/api_lib_auth/#oauth2.
 
+class AbstractAuth(ABC):
+    """Abstract class to make authenticated requests."""
 
-class ConfigEntryAuth(my_pypi_package.AbstractAuth):
+    def __init__(self, websession: ClientSession, host: str):
+        """Initialize the auth."""
+        self.websession = websession
+        self.host = host
+
+    @abstractmethod
+    async def async_get_access_token(self) -> str:
+        """Return a valid access token."""
+
+    async def request(self, method, url, **kwargs) -> ClientResponse:
+        """Make a request."""
+        headers = kwargs.get("headers")
+
+        if headers is None:
+            headers = {}
+        else:
+            headers = dict(headers)
+
+        access_token = await self.async_get_access_token()
+        headers["authorization"] = f"Bearer {access_token}"
+
+        return await self.websession.request(
+            method, f"{self.host}/{url}", **kwargs, headers=headers,
+        )
+
+class ConfigEntryAuth(AbstractAuth):
     """Provide daikin_onecta authentication tied to an OAuth2 based config entry."""
 
     def __init__(
@@ -34,7 +63,7 @@ class ConfigEntryAuth(my_pypi_package.AbstractAuth):
         return self.session.token["access_token"]
 
 
-class AsyncConfigEntryAuth(my_pypi_package.AbstractAuth):
+class AsyncConfigEntryAuth(AbstractAuth):
     """Provide daikin_onecta authentication tied to an OAuth2 based config entry."""
 
     def __init__(
