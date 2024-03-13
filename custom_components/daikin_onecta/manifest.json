@@ -1,0 +1,17 @@
+{
+  "domain": "daikin_onecta",
+  "name": "daikin_onecta",
+  "codeowners": [
+    "@jwillemsen"
+  ],
+  "config_flow": true,
+  "dependencies": [
+    "application_credentials"
+  ],
+  "documentation": "https://www.home-assistant.io/integrations/daikin_onecta",
+  "homekit": {},
+  "iot_class": "cloud_polling",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": []
+}
