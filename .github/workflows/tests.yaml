@@ -37,4 +37,4 @@ jobs:
         if: always()
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          slug: jwillemsen/daikin_onecta
+          slug: jwillemsen/haoauth2_test
